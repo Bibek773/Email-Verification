@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 50px; }
+        input { padding: 10px; width: 250px; margin: 10px; }
+        span { font-size: 18px; display: block; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <h2>Check if Email Exists</h2>
+    <input type="email" id="email" placeholder="Enter your email">
+    <span id="email-status"></span>
+
+    <script>
+        document.getElementById("email").addEventListener("keyup", function() {
+            let email = this.value;
+            clearTimeout(this.timer);
+            
+            this.timer = setTimeout(() => {
+                if (validateEmail(email)) {
+                    checkEmailExists(email);
+                } else {
+                    document.getElementById("email-status").innerText = "❌ Invalid email format";
+                }
+            }, 500);
+        });
+
+        function validateEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        function checkEmailExists(email) {
+            fetch(`http://localhost:3000/check-email?email=${email}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.format_valid && data.mx_found) {
+                    document.getElementById("email-status").innerText = "✅ Email exists!";
+                } else {
+                    document.getElementById("email-status").innerText = "❌ Email does not exist!";
+                }
+            })
+            .catch(error => {
+                document.getElementById("email-status").innerText = "⚠️ Error checking email";
+                console.log("Error:", error);
+            });
+        }
+    </script>
+
+</body>
+</html>
